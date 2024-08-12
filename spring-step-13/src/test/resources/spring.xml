@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans>
+    <bean id="userService" class="com.zyc.springframework.test.bean.UserService"/>
+    <!--
+        这是一个BeanPostProcessor，会在context初始化的时候实例化。
+        但是他和其他BeanPostProcessor执行的时机不一样（实例化的时机相同，但是执行的时机不同）
+        一般的BeanPostProcessor会在initializeBean()中执行，而对于这个特殊的类（管理aop的），我们将它提前执行
+    -->
+    <bean class="com.zyc.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+
+    <bean id="beforeAdvice" class="com.zyc.springframework.test.bean.UserServiceBeforeAdvice"/>
+
+    <bean id="methodInterceptor" class="com.zyc.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor">
+        <property name="advice" ref="beforeAdvice"/>
+    </bean>
+
+    <bean id="pointcutAdvisor" class="com.zyc.springframework.aop.aspectJ.AspectJExpressionPointcutAdvisor">
+        <property name="expression" value="execution(* com.zyc.springframework.test.bean.IUserService.*(..))"/>
+        <property name="advice" ref="methodInterceptor"/>
+    </bean>
+</beans>
